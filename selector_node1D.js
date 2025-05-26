@@ -4,13 +4,19 @@ import {
   treeProcess,
   createHistogram,
   makeSVG,
+  gStyle,
 } from "jsroot"
+
 import { writeFileSync } from "fs"
 
 async function main() {
   try {
-    const selector = new TSelector()
+    gStyle.fPadLeftMargin = 0.12
+    gStyle.fPadRightMargin = 0.12
+    gStyle.fPadBottomMargin = 0.12
+    gStyle.fPadTopMargin = 0.08
 
+    const selector = new TSelector()
     selector.addBranch("py")
 
     selector.hist = null
@@ -18,9 +24,11 @@ async function main() {
     selector.maxpy = null
 
     selector.Begin = function () {
-      this.hist = createHistogram("TH1F", 10,-5,5) // 5 bins from 10 to 25
-      this.hist.fFillColor = 2 // Set fill color to red
-      this.hist.fFillStyle = 1001 // Set fill style to solid
+      this.hist = createHistogram("TH1F", 10, -5, 5)
+      this.hist.fXaxis.fXmin = -5
+      this.hist.fXaxis.fXmax = 5
+      this.hist.fFillColor = 2
+      this.hist.fFillStyle = 1001
       this.hist.fName = "h1"
       this.hist.fTitle = "py Distribution"
       this.hist.fXaxis.fTitle = "py"
@@ -62,9 +70,9 @@ async function main() {
     const tree = await file.readObject("ntuple")
     await treeProcess(tree, selector)
 
-    console.log(" TTree processing completed!")
+    console.log("TTree processing completed!")
   } catch (err) {
-    console.error(" Error:", err.message)
+    console.error("Error:", err.message)
   }
 }
 
