@@ -1,3 +1,6 @@
+
+**MEET 3(MACROS , RNTuple, Root)**
+
 **SOURCES**
 
 
@@ -10,4 +13,13 @@ https://jsroot.gsi.de/dev/?file=../files/tmp/ntpl001_staff.root&item=Staff&opt=i
 https://root.cern/doc/master/group__tutorial__ntuple.html
 
 
-![alt text](<Screenshot 2025-05-26 152128.png>) ![alt text](<Screenshot 2025-05-26 153352.png>) ![alt text](<Screenshot 2025-05-26 153012.png>)
+
+**GOALS COMPLETED:**
+-> INSTALLED ROOT 6.36 
+-> Tried the RNTuple Tutorial (ntpl001_staff) 
+-> Created and ran the macros using .x file.C 
+
+
+
+
+
