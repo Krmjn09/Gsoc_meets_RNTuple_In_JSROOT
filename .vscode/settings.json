@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "ntpl001_staff.C": "cpp",
+        "iosfwd": "cpp",
+        "cstdio": "cpp",
+        "test.C": "cpp",
+        "cernstaff.C": "cpp",
+        "mywriter.C": "cpp",
+        "myreader.C": "cpp",
+        "memory": "cpp"
+    }
+}
