@@ -4,6 +4,8 @@
 #include <iomanip>
 
 // Reads a 16 bit number and arranges them in big -endian order
+
+// uint64_t: fixed-width unsigned integer type
 uint16_t ReadU16BE(std::ifstream &stream)
 {
     uint8_t bytes[2];
