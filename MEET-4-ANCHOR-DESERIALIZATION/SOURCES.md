@@ -6,3 +6,11 @@ https://github.com/root-project/root/blob/master/tree/ntuple/doc/BinaryFormatSpe
 Output
 ![alt text](output.png)
 
+
+
+
+steps:
+created a parse_anchor file in .C and in .js
+- to run .C  (.L parse_anchor.C   -> parse_anchor()
+)
+-to run .js (node parse_anchor.js)
