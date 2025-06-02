@@ -11,7 +11,7 @@ function readUInt64BE(buffer, offset) {
   return (BigInt(high) << 32n) + BigInt(low)
 }
 
-function parseAnchor(filename = "RNTuple.root", anchorOffset = 1889) {
+function parseAnchor(filename = "RNTuple.root", anchorOffset = 1895) {
     //store the file
   const fileBuffer = fs.readFileSync(filename)
   //check if file or offset is correct

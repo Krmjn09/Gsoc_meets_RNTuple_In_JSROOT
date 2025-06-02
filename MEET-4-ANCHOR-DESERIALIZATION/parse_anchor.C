@@ -27,7 +27,7 @@ uint64_t ReadU64BE(std::ifstream &stream)
 
 // deserializes the anchor of RnTUPLE.ROOT
 // anchorOffset : KIND OF SPOT WHERE ANCHOR LIVES
-void parse_anchor(const std::string &filename = "RNTuple.root", std::streamoff anchorOffset = 1889)
+void parse_anchor(const std::string &filename = "RNTuple.root", std::streamoff anchorOffset = 1895)
 {
     std::ifstream file(filename, std::ios::binary);
     if (!file)
