@@ -1,197 +1,163 @@
 using namespace ROOT;
 
-void student_records_rntuple() {
-    std::cout << "Starting Student Records RNTuple creation..." << std::endl;
-    
-    // 1. Define the model for student records
+void simple() {    
+    // 1. Create model with basic field types
     auto model = RNTupleModel::Create();
-    std::cout << "Student model created successfully." << std::endl;
     
-    // Basic student information with automatic ColumnType mapping
-    model->MakeField<bool>("IsEnrolled");           // ENTupleColumnType::kBit
-    model->MakeField<std::byte>("GradeLetter");     // ENTupleColumnType::kByte (A=65, B=66, etc.)
-    model->MakeField<char>("SectionCode");          // ENTupleColumnType::kChar
-    model->MakeField<std::int8_t>("AttendanceWeek");    // ENTupleColumnType::kInt8 (week number)
-    model->MakeField<std::uint8_t>("CourseCredits");    // ENTupleColumnType::kUInt8
+    // Basic types with automatic ColumnType mapping
+    model->MakeField<bool>("flag");                 // ENTupleColumnType::kBit
+    model->MakeField<std::byte>("byte_val");        // ENTupleColumnType::kByte
+    model->MakeField<char>("char_val");             // ENTupleColumnType::kChar
+    model->MakeField<std::int8_t>("int8_val");      // ENTupleColumnType::kInt8
+    model->MakeField<std::uint8_t>("uint8_val");    // ENTupleColumnType::kUInt8
     
-    // Student identifiers and counts with automatic mapping
-    model->MakeField<std::int16_t>("StudentID");        // ENTupleColumnType::kInt16
-    model->MakeField<std::uint16_t>("EnrollmentYear");  // ENTupleColumnType::kUInt16
-    model->MakeField<std::int32_t>("UniversityID");     // ENTupleColumnType::kInt32
-    model->MakeField<std::uint32_t>("LibraryCardNum");  // ENTupleColumnType::kUInt32
-    model->MakeField<std::int32_t>("SSN");              // ENTupleColumnType::kInt32 (using 32-bit for JS compatibility)
-    model->MakeField<std::uint32_t>("StudentLoanNum");  // ENTupleColumnType::kUInt32 (using 32-bit for JS compatibility)
+    // Integer types
+    model->MakeField<std::int16_t>("int16_val");    // ENTupleColumnType::kInt16
+    model->MakeField<std::uint16_t>("uint16_val");  // ENTupleColumnType::kUInt16
+    model->MakeField<std::int32_t>("int32_val");    // ENTupleColumnType::kInt32
+    model->MakeField<std::uint32_t>("uint32_val");  // ENTupleColumnType::kUInt32
+    model->MakeField<std::int32_t>("int64_val");    // ENTupleColumnType::kInt32 (32-bit for JS)
+    model->MakeField<std::uint32_t>("uint64_val");  // ENTupleColumnType::kUInt32 (32-bit for JS)
     
-    // Academic scores with automatic mapping
-    model->MakeField<float>("GPA");                     // ENTupleColumnType::kReal32
-    model->MakeField<double>("CumulativeGPA");          // ENTupleColumnType::kReal64
+    // Floating point types
+    model->MakeField<float>("float_val");           // ENTupleColumnType::kReal32
+    model->MakeField<double>("double_val");         // ENTupleColumnType::kReal64
     
-    // Split integer types for compressed storage
-    auto fSplitStudentRank = std::make_unique<RField<std::int16_t>>("StudentRank");
-    fSplitStudentRank->SetColumnRepresentatives({{ENTupleColumnType::kSplitInt16}});
-    model->AddField(std::move(fSplitStudentRank));
+    // Split integer types for compression
+    auto split_int16 = std::make_unique<RField<std::int16_t>>("split_int16");
+    split_int16->SetColumnRepresentatives({{ENTupleColumnType::kSplitInt16}});
+    model->AddField(std::move(split_int16));
     
-    auto fSplitClassSize = std::make_unique<RField<std::uint16_t>>("ClassSize");
-    fSplitClassSize->SetColumnRepresentatives({{ENTupleColumnType::kSplitUInt16}});
-    model->AddField(std::move(fSplitClassSize));
+    auto split_uint16 = std::make_unique<RField<std::uint16_t>>("split_uint16");
+    split_uint16->SetColumnRepresentatives({{ENTupleColumnType::kSplitUInt16}});
+    model->AddField(std::move(split_uint16));
     
-    auto fSplitTestScore = std::make_unique<RField<std::int32_t>>("TestScore");
-    fSplitTestScore->SetColumnRepresentatives({{ENTupleColumnType::kSplitInt32}});
-    model->AddField(std::move(fSplitTestScore));
+    auto split_int32 = std::make_unique<RField<std::int32_t>>("split_int32");
+    split_int32->SetColumnRepresentatives({{ENTupleColumnType::kSplitInt32}});
+    model->AddField(std::move(split_int32));
     
-    auto fSplitTotalPoints = std::make_unique<RField<std::uint32_t>>("TotalPoints");
-    fSplitTotalPoints->SetColumnRepresentatives({{ENTupleColumnType::kSplitUInt32}});
-    model->AddField(std::move(fSplitTotalPoints));
+    auto split_uint32 = std::make_unique<RField<std::uint32_t>>("split_uint32");
+    split_uint32->SetColumnRepresentatives({{ENTupleColumnType::kSplitUInt32}});
+    model->AddField(std::move(split_uint32));
     
-    auto fSplitStudyHours = std::make_unique<RField<std::int32_t>>("StudyHours");
-    fSplitStudyHours->SetColumnRepresentatives({{ENTupleColumnType::kSplitInt32}});
-    model->AddField(std::move(fSplitStudyHours));
+    // Split floating point types
+    auto split_float = std::make_unique<RField<float>>("split_float");
+    split_float->SetColumnRepresentatives({{ENTupleColumnType::kSplitReal32}});
+    model->AddField(std::move(split_float));
     
-    auto fSplitTuitionPaid = std::make_unique<RField<std::uint32_t>>("TuitionPaid");
-    fSplitTuitionPaid->SetColumnRepresentatives({{ENTupleColumnType::kSplitUInt32}});
-    model->AddField(std::move(fSplitTuitionPaid));
-    
-    // Split floating point types for compressed academic data
-    auto fSplitQuizAverage = std::make_unique<RField<float>>("QuizAverage");
-    fSplitQuizAverage->SetColumnRepresentatives({{ENTupleColumnType::kSplitReal32}});
-    model->AddField(std::move(fSplitQuizAverage));
-    
-    auto fSplitWeightedGPA = std::make_unique<RField<double>>("WeightedGPA");
-    fSplitWeightedGPA->SetColumnRepresentatives({{ENTupleColumnType::kSplitReal64}});
-    model->AddField(std::move(fSplitWeightedGPA));
-    
-    // String fields with different index types for student information
-    auto fStudentName = std::make_unique<RField<std::string>>("StudentName");
-    fStudentName->SetColumnRepresentatives({{ENTupleColumnType::kSplitIndex64, ENTupleColumnType::kChar}});
-    model->AddField(std::move(fStudentName));
-
-    auto fMajor = std::make_unique<RField<std::string>>("Major");
-    fMajor->SetColumnRepresentatives({{ENTupleColumnType::kSplitIndex32, ENTupleColumnType::kChar}});
-    model->AddField(std::move(fMajor));
-
-    auto fEmailAddress = std::make_unique<RField<std::string>>("EmailAddress");
-    fEmailAddress->SetColumnRepresentatives({{ENTupleColumnType::kIndex64, ENTupleColumnType::kChar}});
-    model->AddField(std::move(fEmailAddress));
-
-    auto fCity = std::make_unique<RField<std::string>>("City");
-    fCity->SetColumnRepresentatives({{ENTupleColumnType::kIndex32, ENTupleColumnType::kChar}});
-    model->AddField(std::move(fCity));
-    
-    // 2. Create the writer
-    std::cout << "Creating student records writer..." << std::endl;
-    auto writer = RNTupleWriter::Recreate(std::move(model),
-                                         "StudentRecords",
-                                         "student_records.root");
-    std::cout << "Writer created successfully." << std::endl;
-    
-    // 3. Bind pointers via default entry
-    std::cout << "Binding field pointers..." << std::endl;
-    auto &entry = writer->GetModel().GetDefaultEntry();
-    
-    // Basic student information
-    auto pIsEnrolled = entry.GetPtr<bool>("IsEnrolled");
-    auto pGradeLetter = entry.GetPtr<std::byte>("GradeLetter");
-    auto pSectionCode = entry.GetPtr<char>("SectionCode");
-    auto pAttendanceWeek = entry.GetPtr<std::int8_t>("AttendanceWeek");
-    auto pCourseCredits = entry.GetPtr<std::uint8_t>("CourseCredits");
-    
-    // Student identifiers
-    auto pStudentID = entry.GetPtr<std::int16_t>("StudentID");
-    auto pEnrollmentYear = entry.GetPtr<std::uint16_t>("EnrollmentYear");
-    auto pUniversityID = entry.GetPtr<std::int32_t>("UniversityID");
-    auto pLibraryCardNum = entry.GetPtr<std::uint32_t>("LibraryCardNum");
-    auto pSSN = entry.GetPtr<std::int32_t>("SSN");
-    auto pStudentLoanNum = entry.GetPtr<std::uint32_t>("StudentLoanNum");
-    
-    // Academic scores
-    auto pGPA = entry.GetPtr<float>("GPA");
-    auto pCumulativeGPA = entry.GetPtr<double>("CumulativeGPA");
-    
-    // Split compressed fields
-    auto pStudentRank = entry.GetPtr<std::int16_t>("StudentRank");
-    auto pClassSize = entry.GetPtr<std::uint16_t>("ClassSize");
-    auto pTestScore = entry.GetPtr<std::int32_t>("TestScore");
-    auto pTotalPoints = entry.GetPtr<std::uint32_t>("TotalPoints");
-    auto pStudyHours = entry.GetPtr<std::int32_t>("StudyHours");
-    auto pTuitionPaid = entry.GetPtr<std::uint32_t>("TuitionPaid");
-    auto pQuizAverage = entry.GetPtr<float>("QuizAverage");
-    auto pWeightedGPA = entry.GetPtr<double>("WeightedGPA");
+    auto split_double = std::make_unique<RField<double>>("split_double");
+    split_double->SetColumnRepresentatives({{ENTupleColumnType::kSplitReal64}});
+    model->AddField(std::move(split_double));
     
     // String fields with different index types
-    auto pStudentName = entry.GetPtr<std::string>("StudentName");
-    auto pMajor = entry.GetPtr<std::string>("Major");
-    auto pEmailAddress = entry.GetPtr<std::string>("EmailAddress");
-    auto pCity = entry.GetPtr<std::string>("City");
+    auto str_split64 = std::make_unique<RField<std::string>>("str_split64");
+    str_split64->SetColumnRepresentatives({{ENTupleColumnType::kSplitIndex64, ENTupleColumnType::kChar}});
+    model->AddField(std::move(str_split64));
+
+    auto str_split32 = std::make_unique<RField<std::string>>("str_split32");
+    str_split32->SetColumnRepresentatives({{ENTupleColumnType::kSplitIndex32, ENTupleColumnType::kChar}});
+    model->AddField(std::move(str_split32));
+
+    auto str_index64 = std::make_unique<RField<std::string>>("str_index64");
+    str_index64->SetColumnRepresentatives({{ENTupleColumnType::kIndex64, ENTupleColumnType::kChar}});
+    model->AddField(std::move(str_index64));
+
+    auto str_index32 = std::make_unique<RField<std::string>>("str_index32");
+    str_index32->SetColumnRepresentatives({{ENTupleColumnType::kIndex32, ENTupleColumnType::kChar}});
+    model->AddField(std::move(str_index32));
     
-    // 4. Fill student records
-    std::cout << "Starting to fill student records..." << std::endl;
+    // 2. Create writer
+    auto opts = ROOT::RNTupleWriteOptions();
+   opts.SetCompression(0);
+    auto writer = RNTupleWriter::Recreate(std::move(model),
+                                         "TestData",
+                                         "uncompressed_test_data.root");
+    std::cout << "Writer created successfully." << std::endl;
+    
+    // 3. Get field pointers
+    auto &entry = writer->GetModel().GetDefaultEntry();
+    
+    // Basic type pointers
+    auto p_flag = entry.GetPtr<bool>("flag");
+    auto p_byte = entry.GetPtr<std::byte>("byte_val");
+    auto p_char = entry.GetPtr<char>("char_val");
+    auto p_int8 = entry.GetPtr<std::int8_t>("int8_val");
+    auto p_uint8 = entry.GetPtr<std::uint8_t>("uint8_val");
+    
+    // Integer type pointers
+    auto p_int16 = entry.GetPtr<std::int16_t>("int16_val");
+    auto p_uint16 = entry.GetPtr<std::uint16_t>("uint16_val");
+    auto p_int32 = entry.GetPtr<std::int32_t>("int32_val");
+    auto p_uint32 = entry.GetPtr<std::uint32_t>("uint32_val");
+    auto p_int64 = entry.GetPtr<std::int32_t>("int64_val");
+    auto p_uint64 = entry.GetPtr<std::uint32_t>("uint64_val");
+    
+    // Floating point pointers
+    auto p_float = entry.GetPtr<float>("float_val");
+    auto p_double = entry.GetPtr<double>("double_val");
+    
+    // Split type pointers
+    auto p_split_int16 = entry.GetPtr<std::int16_t>("split_int16");
+    auto p_split_uint16 = entry.GetPtr<std::uint16_t>("split_uint16");
+    auto p_split_int32 = entry.GetPtr<std::int32_t>("split_int32");
+    auto p_split_uint32 = entry.GetPtr<std::uint32_t>("split_uint32");
+    auto p_split_float = entry.GetPtr<float>("split_float");
+    auto p_split_double = entry.GetPtr<double>("split_double");
+    
+    // String type pointers
+    auto p_str_split64 = entry.GetPtr<std::string>("str_split64");
+    auto p_str_split32 = entry.GetPtr<std::string>("str_split32");
+    auto p_str_index64 = entry.GetPtr<std::string>("str_index64");
+    auto p_str_index32 = entry.GetPtr<std::string>("str_index32");
+    
+    // 4. Fill test data
     for (int i = 0; i < 100; ++i) {
-        // Basic student information
-        *pIsEnrolled = (i % 10 != 0);  // Most students enrolled, some dropped
-        *pGradeLetter = (std::byte)(65 + (i % 5));  // Grades A-E (A=65, B=66, etc.)
-        *pSectionCode = 'A' + (i % 8);  // Section codes A-H
-        *pAttendanceWeek = static_cast<std::int8_t>((i % 16) + 1);  // Week 1-16
-        *pCourseCredits = static_cast<std::uint8_t>((i % 6) + 1);   // 1-6 credits
+        // Basic types
+        *p_flag = (i % 2 == 0);
+        *p_byte = (std::byte)(i % 256);
+        *p_char = 'A' + (i % 26);
+        *p_int8 = static_cast<std::int8_t>(i % 128);
+        *p_uint8 = static_cast<std::uint8_t>(i % 256);
         
-        // Student identifiers
-        *pStudentID = static_cast<std::int16_t>(1000 + i);
-        *pEnrollmentYear = static_cast<std::uint16_t>(2020 + (i % 5));  // 2020-2024
-        *pUniversityID = 100000 + i * 13;  // Unique university IDs
-        *pLibraryCardNum = 500000 + i * 7;  // Library card numbers
-        *pSSN = 123456 + i * 1000;     // Mock SSN (32-bit for JS compatibility)
-        *pStudentLoanNum = 900000 + i * 12345;  // Student loan numbers (32-bit)
+        // Integer types
+        *p_int16 = static_cast<std::int16_t>(i * 100);
+        *p_uint16 = static_cast<std::uint16_t>(i * 200);
+        *p_int32 = i * 1000;
+        *p_uint32 = i * 2000;
+        *p_int64 = i * 10000;  // Using 32-bit storage
+        *p_uint64 = i * 20000; // Using 32-bit storage
         
-        // Academic scores
-        *pGPA = 2.0f + (3.0f * (i % 21) / 20.0f);  // GPA between 2.0-5.0
-        *pCumulativeGPA = 2.2 + (2.8 * (i % 29) / 28.0);  // Cumulative GPA 2.2-5.0
+        // Floating point types
+        *p_float = i * 1.5f;
+        *p_double = i * 2.5;
         
-        // Split compressed academic data (same values, different storage)
-        *pStudentRank = static_cast<std::int16_t>((100 - i) + (i % 50)); // Class rank
-        *pClassSize = static_cast<std::uint16_t>(25 + (i % 75));  // Class size 25-100
-        *pTestScore = 65 + (i % 36);  // Test scores 65-100
-        *pTotalPoints = 850 + (i % 151);  // Total points 850-1000
-        *pStudyHours = i * 25 + (i % 100);  // Weekly study hours (32-bit)
-        *pTuitionPaid = 15000 + (i * 500) + (i % 20000);  // Tuition paid (32-bit)
+        // Split types (same values, different storage)
+        *p_split_int16 = static_cast<std::int16_t>(i * 100);
+        *p_split_uint16 = static_cast<std::uint16_t>(i * 200);
+        *p_split_int32 = i * 1000;
+        *p_split_uint32 = i * 2000;
+        *p_split_float = i * 1.5f;
+        *p_split_double = i * 2.5;
         
-        // Split floating point academic data
-        *pQuizAverage = 70.0f + (25.0f * (i % 31) / 30.0f);  // Quiz avg 70-95
-        *pWeightedGPA = 2.5 + (2.0 * (i % 26) / 25.0);  // Weighted GPA 2.5-4.5
+        // String types
+        *p_str_split64 = "split64_" + std::to_string(i);
+        *p_str_split32 = "split32_" + std::to_string(i);
+        *p_str_index64 = "index64_" + std::to_string(i);
+        *p_str_index32 = "index32_" + std::to_string(i);
         
-        // String fields with realistic student data
-        *pStudentName = "Student_" + std::to_string(1000 + i) + "_" + 
-                       std::string(1, 'A' + (i % 26)) + std::string(1, 'A' + ((i*7) % 26));
+        writer->Fill();
         
-        // Majors array for variety
-        std::vector<std::string> majors = {
-            "Computer Science", "Mathematics", "Physics", "Chemistry", "Biology",
-            "Engineering", "Literature", "History", "Psychology", "Economics"
-        };
-        *pMajor = majors[i % majors.size()];
-        
-        *pEmailAddress = "student" + std::to_string(1000 + i) + "@university.edu";
-        
-        // Cities array for variety
-        std::vector<std::string> cities = {
-            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
-            "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"
-        };
-        *pCity = cities[i % cities.size()];
-                
-        writer->Fill(); // Commit student record
-        
-        if (i % 20 == 0) {
-            std::cout << "Processed student record " << i << " (ID: " << (1000 + i) << ")" << std::endl;
+        if (i % 25 == 0) {
+            std::cout << "Filled entry " << i << std::endl;
         }
         
         if (i == 50) {
-            std::cout << "Committing cluster after 50 student records..." << std::endl;
-            writer->CommitCluster(); // Commit cluster every 50 students
+            std::cout << "Committing cluster..." << std::endl;
+            writer->CommitCluster();
         }
     }
     
-    std::cout << "Finalizing student records..." << std::endl;
-    // Force writer to be destroyed/finalized
     writer.reset();
     
-    std::cout << "Successfully wrote student_records.root with 100 student records and all column types." << std::endl;
+    std::cout << "Test file 'test_data.root' created with 100 entries and all column types." << std::endl;
 }
